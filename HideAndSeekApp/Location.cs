@@ -22,14 +22,19 @@ namespace HideAndSeekApp
         /// The constructor sets the location name
         /// </summary>
         /// <param name="name">Name of the location</param>
-        public Location(string name) => throw new NotImplementedException();
+        public Location(string name) => Name = name;
 
         public override string ToString() => Name;
 
         /// <summary>
         /// Returns a sequence of decriptions of the exits, sorted by direction
         /// </summary>
-        public IEnumerable<string> ExitList => throw new NotImplementedException();
+        public IEnumerable<string> ExitList =>
+        Exits
+        .OrderBy(keyValuePair => (int)keyValuePair.Key)
+        .OrderBy(keyValuePair => Math.Abs((int)keyValuePair.Key))
+        .Select(keyValuePair => $"the {keyValuePair.Value} is {DescribeDirection(keyValuePair.Key)}");
+
 
         /// <summary>
         /// Adds an exit to this location
@@ -38,15 +43,25 @@ namespace HideAndSeekApp
         /// <param name="connectingLocation">Connecting location to add</param>
         public void AddExit(Direction direction, Location connectingLocation)
         {
-            throw new NotImplementedException();
+            Exits.Add(direction, connectingLocation);
+            connectingLocation.AddReturnExit(direction, this);
+            
         }
+
+        private void AddReturnExit(Direction direction, Location connectingLocation) =>
+            Exits.Add((Direction)(-(int)direction), connectingLocation);
 
         /// <summary>
         /// Gets the exit location in a direction
         /// </summary>
         /// <param name="direction">Direction of the exit location</param>
         /// <returns></returns>
-        public Location GetExit(Direction direction) => throw new NotImplementedException();
+        public Location GetExit(Direction direction) =>
+            Exits.ContainsKey(direction) ?
+            Exits[direction] :
+            this;
+
+
 
         /// <summary>
         /// Describes a direction (e.g. "in" vs. "to the North")
@@ -61,5 +76,7 @@ namespace HideAndSeekApp
             Direction.Out => "Out",
             _ => $"to the {d}",
         };
+
+
     }
 }
